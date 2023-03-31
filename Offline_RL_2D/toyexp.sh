@@ -33,21 +33,21 @@ main() {
 
     TASK="rings"
     seed=0
-    setting="cross_entrophy_alpha20"
+    setting="CEP_alpha20"
     txtname=$TXTLOGDIR`date '+%m-%d-%H-%M-%S'`_exp$TASK${seed}$setting.txt
-    CUDA_VISIBLE_DEVICES=3 python3 -u bandit_toy.py --expid $TASK${seed}${setting} --env $TASK --diffusion_steps 15 --seed ${seed} --alpha 20 --s 1.0 --method "cross_entrophy" > $txtname 2>&1 &
+    CUDA_VISIBLE_DEVICES=3 python3 -u bandit_toy.py --expid $TASK${seed}${setting} --env $TASK --diffusion_steps 15 --seed ${seed} --alpha 20 --s 1.0 --method "CEP" > $txtname 2>&1 &
 
     TASK="checkerboard"
     seed=0
-    setting="cross_entrophy_alpha20"
+    setting="CEP_alpha20"
     txtname=$TXTLOGDIR`date '+%m-%d-%H-%M-%S'`_exp$TASK${seed}$setting.txt
-    CUDA_VISIBLE_DEVICES=4 python3 -u bandit_toy.py --expid $TASK${seed}${setting} --env $TASK --diffusion_steps 15 --seed ${seed} --alpha 20 --s 1.0 --method "cross_entrophy" > $txtname 2>&1 &
+    CUDA_VISIBLE_DEVICES=4 python3 -u bandit_toy.py --expid $TASK${seed}${setting} --env $TASK --diffusion_steps 15 --seed ${seed} --alpha 20 --s 1.0 --method "CEP" > $txtname 2>&1 &
 
     TASK="2spirals"
     seed=0
-    setting="cross_entrophy_alpha20"
+    setting="CEP_alpha20"
     txtname=$TXTLOGDIR`date '+%m-%d-%H-%M-%S'`_exp$TASK${seed}$setting.txt
-    CUDA_VISIBLE_DEVICES=5 python3 -u bandit_toy.py --expid $TASK${seed}${setting} --env $TASK --diffusion_steps 15 --seed ${seed} --alpha 20 --s 1.0 --method "cross_entrophy" > $txtname 2>&1 &
+    CUDA_VISIBLE_DEVICES=5 python3 -u bandit_toy.py --expid $TASK${seed}${setting} --env $TASK --diffusion_steps 15 --seed ${seed} --alpha 20 --s 1.0 --method "CEP" > $txtname 2>&1 &
 
 
 

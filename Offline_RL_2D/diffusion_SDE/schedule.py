@@ -1,5 +1,5 @@
 import torch
-def marginal_prob_std(t, sigma=None, device="cuda"):
+def marginal_prob_std(t, device="cuda"):
     """Compute the mean and standard deviation of $p_{0t}(x(t) | x(0))$.
     """    
     t = torch.tensor(t, device=device)

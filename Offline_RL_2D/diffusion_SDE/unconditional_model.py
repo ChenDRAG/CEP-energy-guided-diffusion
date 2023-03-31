@@ -1,18 +1,10 @@
 import torch
 import torch.nn as nn
-import gym
-import d4rl
 import numpy as np
-import functools
-import copy
-import os
 import torch.nn.functional as F
-import tqdm
 from diffusion_SDE import dpm_solver_pytorch
 from diffusion_SDE import schedule
-from diffusion_SDE.model_dql import GaussianFourierProjection, Dense, SiLU, mlp
-MAX_BZ_SIZE = 1024
-DEFAULT_DEVICE = "cuda"
+from diffusion_SDE.model import GaussianFourierProjection, Dense, SiLU, mlp
 
 class GuidanceQt(nn.Module):
     def __init__(self, action_dim, state_dim):
@@ -26,16 +18,15 @@ class GuidanceQt(nn.Module):
         ats = torch.cat([action, embed, condition], -1) if condition is not None else torch.cat([action, embed], -1)
         return self.qt(ats)
 
-
 class Bandit_Critic_Guide(nn.Module):
     def __init__(self, adim, sdim, args) -> None:
         super().__init__()
-        self.qt = GuidanceQt(adim, sdim).to(DEFAULT_DEVICE)
+        self.qt = GuidanceQt(adim, sdim).to(args.device)
         self.qt_optimizer = torch.optim.Adam(self.qt.parameters(), lr=3e-4)
         
         self.args = args
         self.alpha = args.alpha
-        self.guidance_scale = args.s
+        self.guidance_scale = 1.0
 
     def forward(self, a, condition=None):
         return self.qt(a, condition)
@@ -52,14 +43,14 @@ class Bandit_Critic_Guide(nn.Module):
         energy = data['e'] # <bz, 1>
         
         if self.args.method == "mse":
-            random_t = torch.rand(a.shape[0], device=DEFAULT_DEVICE) * (1. - 1e-5) + 1e-5
+            random_t = torch.rand(a.shape[0], device=a.device) * (1. - 1e-5) + 1e-5
             z = torch.randn_like(a)
             alpha_t, std = schedule.marginal_prob_std(random_t)
             perturbed_a = a * alpha_t[..., None] + z * std[..., None]
 
             loss = torch.mean((self.qt(perturbed_a, random_t, None) - energy * self.alpha)**2)
         elif self.args.method == "emse":
-            random_t = torch.rand(a.shape[0], device=DEFAULT_DEVICE) * (1. - 1e-5) + 1e-5
+            random_t = torch.rand(a.shape[0], device=a.device) * (1. - 1e-5) + 1e-5
             z = torch.randn_like(a)
             alpha_t, std = schedule.marginal_prob_std(random_t)
             perturbed_a = a * alpha_t[..., None] + z * std[..., None]
@@ -70,12 +61,12 @@ class Bandit_Critic_Guide(nn.Module):
                 else:
                     return torch.exp(value*alpha)
             loss = torch.mean((unlinear_func(self.qt(perturbed_a, random_t, None), 1.0) - unlinear_func(energy - 1.0, self.alpha, clip=True))**2)
-        elif self.args.method == "cross_entrophy":
+        elif self.args.method == "CEP":
             logsoftmax = nn.LogSoftmax(dim=0)
             softmax = nn.Softmax(dim=0)
             
             x0_data_energy = energy * self.alpha
-            random_t = torch.rand((1,), device=DEFAULT_DEVICE) * (1. - 1e-5) + 1e-5
+            random_t = torch.rand((1,), device=a.device) * (1. - 1e-5) + 1e-5
             random_t = torch.cat([random_t] * a.shape[0])
             z = torch.randn_like(a)
             alpha_t, std = schedule.marginal_prob_std(random_t)

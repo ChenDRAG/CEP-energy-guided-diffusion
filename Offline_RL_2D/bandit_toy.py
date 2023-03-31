@@ -23,7 +23,7 @@ from dataset.dataset import Toy_dataset
 def train(args, score_model, data_loader, start_epoch=0):
     n_epochs = 759
     tqdm_epoch = tqdm.trange(start_epoch, n_epochs)
-    optimizer = Adam(score_model.parameters(), lr=args.lr)
+    optimizer = Adam(score_model.parameters(), lr=1e-4)
     
     for epoch in tqdm_epoch:
         avg_loss = 0.
@@ -44,6 +44,7 @@ def train(args, score_model, data_loader, start_epoch=0):
         # Update the checkpoint after each epoch of training.
         if epoch % 50 == 49 and args.save_model:
             torch.save(score_model.state_dict(), os.path.join("./models", str(args.expid), "ckpt{}.pth".format(epoch+1)))
+            
         args.writer.add_scalar("actor/loss", avg_loss / num_items, global_step=epoch)
 
 
@@ -73,17 +74,15 @@ def main(args):
     np.random.seed(args.seed)
     args.writer = writer
     
-    marginal_prob_std_fn = functools.partial(marginal_prob_std, sigma=args.sigma, device=args.device)
+    marginal_prob_std_fn = functools.partial(marginal_prob_std, device=args.device)
     args.marginal_prob_std_fn = marginal_prob_std_fn
 
     dataset = Toy_dataset(args.env)
-    data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    data_loader = DataLoader(dataset, batch_size=2048, shuffle=True)
     # if fake action cannot be find, we should fake action in the actor load path
     
-    if args.actor_type == "large":
-        assert False
-    elif args.actor_type == "small":
-        score_model= Bandit_MlpScoreNet(input_dim=0+dataset.datadim, output_dim=dataset.datadim, marginal_prob_std=marginal_prob_std_fn, args=args).to(args.device)
+
+    score_model= Bandit_MlpScoreNet(input_dim=0+dataset.datadim, output_dim=dataset.datadim, marginal_prob_std=marginal_prob_std_fn, args=args).to(args.device)
     score_model.q[0].to(args.device)
 
     print("training")
@@ -92,7 +91,4 @@ def main(args):
 
 if __name__ == "__main__":
     args = get_args()
-
-    args.actor_type = "small"
-    args.batchsize=2048
     main(args)
