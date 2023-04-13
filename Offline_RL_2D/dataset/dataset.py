@@ -12,11 +12,6 @@ from scipy.special import softmax
 import sklearn
 import sklearn.datasets
 from sklearn.utils import shuffle as util_shuffle
-import torch
-from torch.distributions import Independent, Normal
-MAX_BZ_SIZE = 1024
-DISCOUNT = 0.99
-
 
 # Dataset iterator
 def inf_train_gen(data, batch_size=200):
@@ -32,7 +27,6 @@ def inf_train_gen(data, batch_size=200):
         data = data.astype("float32")
         data *= 3
         return data
-
     elif data == "rings":
         n_samples4 = n_samples3 = n_samples2 = batch_size // 4
         n_samples1 = batch_size - n_samples4 - n_samples3 - n_samples2
@@ -70,7 +64,6 @@ def inf_train_gen(data, batch_size=200):
         X = X + np.random.normal(scale=0.08, size=X.shape)
 
         return X.astype("float32"), energy[:,None]
-
 
     elif data == "moons":
         data, y = sklearn.datasets.make_moons(n_samples=batch_size, noise=0.1)
@@ -228,8 +221,8 @@ class D4RL_dataset(torch.utils.data.Dataset):
                 'r': self.rewards[index % self.len],
                 's_':self.next_states[index % self.len],
                 'd': self.is_finished[index % self.len],
-                'fake_a':self.fake_actions[index % self.len],  # self.fake_actions <D, 16, A>
-                'fake_a_':self.fake_next_actions[index % self.len],  # self.fake_next_actions <D, 16, A>
+                'fake_a':self.fake_actions[index % self.len] if hasattr(self, "fake_actions") else 0.0,  # self.fake_actions <D, 16, A>
+                'fake_a_':self.fake_next_actions[index % self.len] if hasattr(self, "fake_next_actions") else 0.0,  # self.fake_next_actions <D, 16, A>
             }
         return data
 

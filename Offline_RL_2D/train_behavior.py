@@ -51,16 +51,16 @@ def train_behavior(args, score_model, data_loader, start_epoch=0):
         tqdm_epoch.set_description('Average Loss: {:5f}'.format(avg_loss / num_items))
             
         if (epoch % save_interval == (save_interval - 1)) or epoch == 599:
-            torch.save(score_model.state_dict(), os.path.join("./models", str(args.expid), "behavior_ckpt{}.pth".format(epoch+1)))
+            torch.save(score_model.state_dict(), os.path.join("./models_rl", str(args.expid), "behavior_ckpt{}.pth".format(epoch+1)))
         args.writer.add_scalar("actor/loss", avg_loss / num_items, global_step=epoch)
 
 def behavior(args):
     # The diffusion behavior training pipeline is copied directly from https://github.com/ChenDRAG/SfBC/blob/master/train_behavior.py
-    for dir in ["./models", "./logs"]:
+    for dir in ["./models_rl", "./logs"]:
         if not os.path.exists(dir):
             os.makedirs(dir)
-    if not os.path.exists(os.path.join("./models", str(args.expid))):
-        os.makedirs(os.path.join("./models", str(args.expid)))
+    if not os.path.exists(os.path.join("./models_rl", str(args.expid))):
+        os.makedirs(os.path.join("./models_rl", str(args.expid)))
 
     writer = SummaryWriter("./logs/" + str(args.expid))
     

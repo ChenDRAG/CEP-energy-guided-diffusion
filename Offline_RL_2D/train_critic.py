@@ -55,7 +55,7 @@ def train_critic(args, score_model, data_loader, start_epoch=0):
             score_model.q[0].guidance_scale = 1.0
 
         if args.save_model and ((epoch % save_interval == (save_interval - 1)) or epoch==0):
-            torch.save(score_model.q[0].state_dict(), os.path.join("./models", str(args.expid), "critic_ckpt{}.pth".format(epoch+1)))
+            torch.save(score_model.q[0].state_dict(), os.path.join("./models_rl", str(args.expid), "critic_ckpt{}.pth".format(epoch+1)))
         args.writer.add_scalar("critic/loss", avg_loss / num_items, global_step=epoch)
         data_p = [0, 10, 25, 50, 75, 90, 100]
         if args.debug:
@@ -64,11 +64,11 @@ def train_critic(args, score_model, data_loader, start_epoch=0):
             args.writer.add_scalars("target/debug", {str(p): d for p, d in zip(data_p, np.percentile(score_model.q[0].debug_used, data_p))}, global_step=epoch)
 
 def critic(args):
-    for dir in ["./models", "./logs"]:
+    for dir in ["./models_rl", "./logs"]:
         if not os.path.exists(dir):
             os.makedirs(dir)
-    if not os.path.exists(os.path.join("./models", str(args.expid))):
-        os.makedirs(os.path.join("./models", str(args.expid)))
+    if not os.path.exists(os.path.join("./models_rl", str(args.expid))):
+        os.makedirs(os.path.join("./models_rl", str(args.expid)))
     writer = SummaryWriter("./logs/" + str(args.expid))
     
     env = gym.make(args.env)

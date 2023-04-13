@@ -16,7 +16,7 @@ from torch.utils.tensorboard import SummaryWriter
 from diffusion_SDE.loss import loss_fn
 from diffusion_SDE.schedule import marginal_prob_std
 from diffusion_SDE.unconditional_model import Bandit_MlpScoreNet
-from utils import get_args
+from utils import bandit_get_args
 from dataset.dataset import Toy_dataset
 
 
@@ -39,15 +39,10 @@ def train(args, score_model, data_loader, start_epoch=0):
             avg_loss += loss.item() * x.shape[0]
             num_items += x.shape[0]
         tqdm_epoch.set_description('Average Loss: {:5f}'.format(avg_loss / num_items))
-        # Print the averaged training loss so far.
-            
         # Update the checkpoint after each epoch of training.
         if epoch % 50 == 49 and args.save_model:
             torch.save(score_model.state_dict(), os.path.join("./models", str(args.expid), "ckpt{}.pth".format(epoch+1)))
-            
         args.writer.add_scalar("actor/loss", avg_loss / num_items, global_step=epoch)
-
-
         avg_loss = 0.
         num_items = 0
         for data in data_loader:
@@ -59,8 +54,6 @@ def train(args, score_model, data_loader, start_epoch=0):
         if (epoch % 50 == 49) or epoch==0:
             torch.save(score_model.q[0].state_dict(), os.path.join("./models", str(args.expid), "critic_ckpt{}.pth".format(epoch+1)))
         args.writer.add_scalar("critic/loss", avg_loss / num_items, global_step=epoch)
-        
-    
 
 def main(args):
     for dir in ["./models", "./toylogs"]:
@@ -79,9 +72,6 @@ def main(args):
 
     dataset = Toy_dataset(args.env)
     data_loader = DataLoader(dataset, batch_size=2048, shuffle=True)
-    # if fake action cannot be find, we should fake action in the actor load path
-    
-
     score_model= Bandit_MlpScoreNet(input_dim=0+dataset.datadim, output_dim=dataset.datadim, marginal_prob_std=marginal_prob_std_fn, args=args).to(args.device)
     score_model.q[0].to(args.device)
 
@@ -90,5 +80,5 @@ def main(args):
     print("finished")
 
 if __name__ == "__main__":
-    args = get_args()
+    args = bandit_get_args()
     main(args)
