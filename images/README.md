@@ -1,4 +1,4 @@
-This repo is heavily based on https://github.com/openai/guided-diffusion.
+This repo is heavily based on https://github.com/openai/guided-diffusion, and is still being cleaning up.
 
 # guided-diffusion
 
