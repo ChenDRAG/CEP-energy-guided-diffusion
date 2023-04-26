@@ -1,8 +1,8 @@
 # Contrastive Energy Prediction
-Official codebase for [Exact Energy-Guided Diffusion Sampling via Contrastive Energy Prediction with applications in offline RL](arXiv TBD).
+Official codebase for [Exact Energy-Guided Diffusion Sampling via Contrastive Energy Prediction with applications in offline RL](https://arxiv.org/abs/2304.12824).
 Contains scripts to reproduce experiments.
 
-Lu Cheng\*, Huayu Chen\*, Jianfei Chen†, Hang Su, Chongxuan Li, Jun Zhu†
+Cheng Lu\*, Huayu Chen\*, Jianfei Chen†, Hang Su, Chongxuan Li, Jun Zhu†
 
 \*equal contribution, †equal advising
 
@@ -18,7 +18,12 @@ See corresponding READMEs in each folder for instructions; scripts should be run
 Please cite our paper as:
 
 ```
-TBD
+@article{lu2023contrastive,
+  title={Contrastive Energy Prediction for Exact Energy-Guided Diffusion Sampling in Offline Reinforcement Learning},
+  author={Lu, Cheng and Chen, Huayu and Chen, Jianfei and Su, Hang and Li, Chongxuan and Zhu, Jun},
+  journal={arXiv preprint arXiv:2304.12824},
+  year={2023}
+}
 ```
 
 ## License
