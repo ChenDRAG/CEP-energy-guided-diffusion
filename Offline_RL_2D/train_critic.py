@@ -103,6 +103,7 @@ def critic(args):
         actions = []
         for states in tqdm.tqdm(np.array_split(allstates, allstates.shape[0] // 256 + 1)):
             actions.append(score_model.sample(states, sample_per_state=args.M, diffusion_steps=args.diffusion_steps))
+        actions = np.concatenate(actions)
         dataset.fake_actions = torch.Tensor(actions.astype(np.float32)).to(args.device)
         if LOAD_FAKE:
             np.save(args.actor_load_path+ "actions{}_raw.npy".format(args.diffusion_steps), actions)
@@ -115,6 +116,7 @@ def critic(args):
         actions = []
         for states in tqdm.tqdm(np.array_split(allstates, allstates.shape[0] // 256 + 1)):
             actions.append(score_model.sample(states, sample_per_state=args.M, diffusion_steps=args.diffusion_steps))
+        actions = np.concatenate(actions)
         dataset.fake_next_actions = torch.Tensor(actions.astype(np.float32)).to(args.device)
         if LOAD_FAKE:
             np.save(args.actor_load_path+ "next_actions{}_raw.npy".format(args.diffusion_steps), actions)
